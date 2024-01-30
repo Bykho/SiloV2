@@ -4,9 +4,9 @@
 In terms of Zero To One, this repo represents step 0.1.
 
 ### This MVP demonstrate three crucial components of the system:
-Automatic File Classification
-Automatic File Interception
-Wider range of classifiable documents.
+- Automatic File Classification
+- Automatic File Interception
+- Wider range of classifiable documents.
 
 ### What is the SILO project?
 The SILO project is a initiative designed to transform the interaction between an individual's data and autonomous agents. It introduces an innovative solution to address a challenge in human-AI interfacing: how to identify and provide contextual data from users. Think of it like RAG but for an individual.
