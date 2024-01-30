@@ -18,7 +18,7 @@ class FileHandler(FileSystemEventHandler):
         dest_path = os.path.join(self.dest_dir, file_name)
 
         initial_size = os.path.getsize(src_path)
-        time.sleep(5)
+        time.sleep(3)
 
         if os.path.exists(src_path) and os.path.getsize(src_path) == initial_size:
             try:
