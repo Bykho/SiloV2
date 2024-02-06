@@ -1,8 +1,8 @@
 import os
-import time
 import shutil
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import subprocess  # Import subprocess module
 
 class FileHandler(FileSystemEventHandler):
     def __init__(self, src_dir, dest_dir):
@@ -14,20 +14,20 @@ class FileHandler(FileSystemEventHandler):
             return
 
         src_path = event.src_path
+
+        # Check if the file still exists at src_path
+        if not os.path.exists(src_path):
+            print(f"File {src_path} no longer exists.")
+            return
+
         file_name = os.path.basename(src_path)
         dest_path = os.path.join(self.dest_dir, file_name)
 
-        initial_size = os.path.getsize(src_path)
-        time.sleep(3)
-
-        if os.path.exists(src_path) and os.path.getsize(src_path) == initial_size:
-            try:
-                shutil.copy2(src_path, dest_path)
-                print(f"Copied: {file_name} to {dest_path}")
-            except Exception as e:
-                print(f"Error copying {file_name}: {e}")
-        else:
-            print(f"File download incomplete: {file_name}")
+        try:
+            shutil.move(src_path, dest_path)
+            print(f"Moved: {file_name} to {dest_path}")
+        except Exception as e:
+            print(f"Error moving {file_name}: {e}")
 
 def main():
     desktop_dir = os.path.expanduser("~/Desktop")
@@ -42,13 +42,19 @@ def main():
     observer.start()
 
     try:
+
+        display_process = subprocess.Popen(["python3", "display.py"])
+
+
         while True:
-            time.sleep(1)
+            pass
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
 
 if __name__ == "__main__":
     main()
+
+
 
 
