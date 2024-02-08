@@ -41,12 +41,12 @@ class FileViewer(QMainWindow):
 
     def load_files(self):
         self.files = []
-        print("Checking for files in directory:", self.directory_path)
+        #print("Checking for files in directory:", self.directory_path)
         for filename in os.listdir(self.directory_path):
             if filename.endswith(('.png', '.jpg', '.jpeg')):
                 self.files.append(filename)
 
-        print("Found files:", self.files)
+        #print("Found files:", self.files)
 
         # Clear existing widgets
         for i in reversed(range(self.scroll_layout.count())):
