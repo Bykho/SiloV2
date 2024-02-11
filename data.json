@@ -1,4 +1,10 @@
-[
-    "S11.jpg",
-    "S12.jpg"
-]
+{
+    "S11.jpg": {
+        "classification_result": "S1",
+        "creation_time": "2024-02-08 19:31:06"
+    },
+    "S12.jpg": {
+        "classification_result": "unknown",
+        "creation_time": "2024-02-08 19:31:54"
+    }
+}

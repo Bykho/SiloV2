@@ -5,6 +5,7 @@ from watchdog.events import FileSystemEventHandler
 import json
 import subprocess  # Import subprocess module
 from classifier import run_classification  # Import the run_classification function
+from datetime import datetime
 
 
 # Define the global variable for the data.json file path
@@ -18,14 +19,11 @@ class FileHandler(FileSystemEventHandler):
         # Initialize data file with an empty list if it doesn't exist or empty
         if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
             with open(DATA_FILE, 'w') as f:
-                json.dump([], f)
+                json.dump({}, f)
     
-        print(data_file)
-
     def on_created(self, event):
         if event.is_directory:
             return
-        print('check if on_created works')
         src_path = event.src_path
 
         # Check if the file still exists at src_path
@@ -39,64 +37,27 @@ class FileHandler(FileSystemEventHandler):
         try:
             shutil.move(src_path, dest_path)
             print(f"Moved: {file_name} to {dest_path}")
-        
-            # Update data.json file
-            self.update_data_file(file_name)
 
             # After moving the file, classify it
             classification_result = run_classification(dest_path)
+
+            # Update data.json file
+            self.update_data_file(file_name, classification_result)
+            
             print(f"Classification Result for {file_name}: {classification_result}")
         except Exception as e:
             print(f"Error moving {file_name}: {e}")
 
-    def on_deleted(self, event):
-        if event.is_directory:
-            return
-        print('check if on_deleted works')
-        src_path = event.src_path
-
-        # Check if the file still exists at src_path
-        if not os.path.exists(src_path):
-            print(f"File {src_path} no longer exists.")
-            return
-
-        file_name = os.path.basename(src_path)
-        dest_path = os.path.join(self.dest_dir, file_name)
-
+    def update_data_file(self, file_name, classification_result):
         try:
-            os.remove(dest_path)
-            print(f"Deleted: {file_name}")
-
-            # Update data.json file
-            #self.remove_from_data_file(file_name)
-        except Exception as e:
-            print(f"Error deleting {file_name}: {e}")
-
-    def update_data_file(self, file_name):
-        data = []
-        try:
-            if os.path.exists(DATA_FILE):
-                with open(DATA_FILE, 'r') as f:
-                    data = json.load(f)
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-        if file_name not in data:
-            data.append(file_name)
-        try:
-            with open(DATA_FILE, 'w') as f:
-                json.dump(data, f, indent=4)
-        except Exception as e:
-            print("An error occurred while dumping:", e)
-
-    def remove_from_data_file(self, file_name):
-        if os.path.exists(DATA_FILE):
+            creation_time = datetime.fromtimestamp(os.path.getctime(os.path.join(self.dest_dir, file_name))).strftime('%Y-%m-%d %H:%M:%S')
             with open(DATA_FILE, 'r') as f:
                 data = json.load(f)
-                if file_name in data:
-                    data.remove(file_name)
-            
+                data[file_name] = {"classification_result": classification_result, "creation_time": creation_time}
             with open(DATA_FILE, 'w') as f:
                 json.dump(data, f, indent=4)
+        except Exception as e:
+            print("An error occurred while updating data file:", e)
 
 def main():
     desktop_dir = os.path.expanduser("~/Desktop")
@@ -122,8 +83,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
