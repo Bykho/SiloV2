@@ -19,7 +19,7 @@ class FileViewer(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         self.layout = QVBoxLayout()
-        self.scroll_area = QFrame()  # Use QFrame for the black background
+        self.scroll_area = QFrame()
         self.scroll_area.setStyleSheet("background-color: black;")
         self.scroll_area.setFrameStyle(QFrame.StyledPanel | QFrame.Plain)
         self.scroll_area.setLineWidth(1)

@@ -1,12 +1,13 @@
 import os
 import shutil
+import json
+import subprocess
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-import json
-import subprocess  # Import subprocess module
-from classifier import run_classification  # Import the run_classification function
+from classifier import run_classification
 from datetime import datetime
-
+import signal
+import sys
 
 # Define the global variable for the data.json file path
 DATA_FILE = os.path.join(os.path.expanduser("~/Desktop/SiloV2"), "data.json")
@@ -43,7 +44,7 @@ class FileHandler(FileSystemEventHandler):
 
             # Update data.json file
             self.update_data_file(file_name, classification_result)
-            
+
             print(f"Classification Result for {file_name}: {classification_result}")
         except Exception as e:
             print(f"Error moving {file_name}: {e}")
@@ -58,6 +59,38 @@ class FileHandler(FileSystemEventHandler):
                 json.dump(data, f, indent=4)
         except Exception as e:
             print("An error occurred while updating data file:", e)
+
+def daemonize():
+    try:
+        pid = os.fork()
+        if pid > 0:
+            sys.exit(0)
+    except OSError as e:
+        sys.stderr.write(f"Fork failed: {e}\n")
+        sys.exit(1)
+    
+    os.chdir("/")
+    
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os.close(sys.stdin.fileno())
+    os.close(sys.stdout.fileno())
+    os.close(sys.stderr.fileno())
+    
+    sys.stdin = open("/dev/null", "r")
+    sys.stdout = open("/dev/null", "a+")
+    sys.stderr = open("/dev/null", "a+")
+    
+    os.umask(0)
+    
+    signal.signal(signal.SIGTERM, handler)
+    signal.signal(signal.SIGINT, handler)
+
+    main()
+
+def handler(signum, frame):
+    observer.stop()
+    sys.exit(0)
 
 def main():
     desktop_dir = os.path.expanduser("~/Desktop")
@@ -82,4 +115,5 @@ def main():
     observer.join()
 
 if __name__ == "__main__":
-    main()
+    daemonize()
+

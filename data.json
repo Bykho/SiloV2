@@ -6,5 +6,9 @@
     "S12.jpg": {
         "classification_result": "unknown",
         "creation_time": "2024-02-08 19:31:54"
+    },
+    "S13.jpg": {
+        "classification_result": "S1",
+        "creation_time": "2024-02-12 21:25:53"
     }
 }
