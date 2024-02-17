@@ -1,7 +1,7 @@
 {
     "S11.jpg": {
         "classification_result": "S1",
-        "creation_time": "2024-02-08 19:31:06"
+        "creation_time": "2024-02-16 22:16:31"
     },
     "S12.jpg": {
         "classification_result": "unknown",
@@ -9,6 +9,42 @@
     },
     "S13.jpg": {
         "classification_result": "S1",
-        "creation_time": "2024-02-12 21:25:53"
+        "creation_time": "2024-02-16 22:16:28"
+    },
+    "~$khovsky_Gonzalez_Graduate_Resume.docx": {
+        "classification_result": "",
+        "creation_time": "2024-02-15 12:36:37"
+    },
+    "Bykhovsky_Gonzalez_Dec19.docx": {
+        "classification_result": "",
+        "creation_time": "2024-02-15 12:45:50"
+    },
+    "Bykhovsky_Gonzalez_Resume.pdf": {
+        "classification_result": "",
+        "creation_time": "2024-02-15 12:49:00"
+    },
+    "PaA.jpg": {
+        "classification_result": "unknown",
+        "creation_time": "2024-02-15 21:38:14"
+    },
+    "MoH.jpg": {
+        "classification_result": "unknown",
+        "creation_time": "2024-02-15 21:38:29"
+    },
+    "TE.jpg": {
+        "classification_result": "unknown",
+        "creation_time": "2024-02-15 21:38:53"
+    },
+    "TLD.jpg": {
+        "classification_result": "unknown",
+        "creation_time": "2024-02-15 21:39:11"
+    },
+    "Screen Shot 2023-11-14 at 12.09.14 AM.png": {
+        "classification_result": "W2",
+        "creation_time": "2024-02-16 21:56:25"
+    },
+    "Screen Shot 2023-10-31 at 5.35.54 PM.png": {
+        "classification_result": "W2",
+        "creation_time": "2024-02-16 21:56:40"
     }
 }

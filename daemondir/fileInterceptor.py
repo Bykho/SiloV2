@@ -11,6 +11,7 @@ import sys
 
 # Define the global variable for the data.json file path
 DATA_FILE = os.path.join(os.path.expanduser("~/Desktop/SiloV2"), "data.json")
+FILTER_PREFERENCES = os.path.join(os.path.dirname(__file__), "filter_preferences.json")
 
 class FileHandler(FileSystemEventHandler):
     def __init__(self, src_dir, dest_dir, data_file):
@@ -35,19 +36,29 @@ class FileHandler(FileSystemEventHandler):
         file_name = os.path.basename(src_path)
         dest_path = os.path.join(self.dest_dir, file_name)
 
+        #Pull out prefered classes to filter from filter_preferences
+        with open(FILTER_PREFERENCES, 'r') as f:
+            CLASSES_TO_FILTER = json.load(f)["Classes"]
+            print('Classes to filter, ', CLASSES_TO_FILTER)
+
         try:
-            shutil.move(src_path, dest_path)
-            print(f"Moved: {file_name} to {dest_path}")
-
             # After moving the file, classify it
-            classification_result = run_classification(dest_path)
+            classification_result = run_classification(src_path)
+            if classification_result in CLASSES_TO_FILTER:
+                #Duplicate the file before moving it. This duplicated src_path and then lands it in dest_path
+                shutil.copy2(src_path, dest_path)
+                #shutil.move(src_path, dest_path)
+                print(f"File was classified as {classification_result}, preferences are {CLASSES_TO_FILTER}")
+                print(f"Moved: {file_name} to {dest_path}")
 
-            # Update data.json file
-            self.update_data_file(file_name, classification_result)
+                # Update data.json file
+                self.update_data_file(file_name, classification_result)
+            else:
+                print(f"File was not classified as per preferences, so it was not duplicated or moved: {file_name}")
 
             print(f"Classification Result for {file_name}: {classification_result}")
         except Exception as e:
-            print(f"Error moving {file_name}: {e}")
+            print(f"Error moving (or classifying) {file_name}: {e}")
 
     def update_data_file(self, file_name, classification_result):
         try:
@@ -115,5 +126,6 @@ def main():
     observer.join()
 
 if __name__ == "__main__":
-    daemonize()
+    main()
+    #daemonize()
 
