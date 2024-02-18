@@ -3,7 +3,21 @@ from ocr import perform_ocr
 
 def classify_text(text):
     regexS1 = r'\bS-?1\b'
-    regexW2 = r'\bW-?2\b'
+    regexTaxReturn = r'\b1040\b|IRS\s*Form\s*1040'
+    regexW2 = r'\bW-2\b'
+    regex1099MISCForms = r'\b1099-MISC\b'
+    regexScheduleCForms = r'\bSchedule\s*C\b'
+    regexScheduleAForms = r'\bSchedule\s*A\b'
+    regex1099INTForms = r'\b1099-INT\b'
+    regex1099DIVForms = r'\b1099-DIV\b'
+    regex1099RForms = r'\b1099-R\b'
+    regex1099BForms = r'\b1099-B\b'
+    regex1098Forms = r'\b1098\b'
+    regex5498Forms = r'\b5498\b'
+    regex8867Forms = r'\b8867\b'
+    regexTaxAccountTranscript = r'\bTax\s*Account\s*Transcript\b'
+    regexTaxReturnTranscript = r'\bTax\s*Return\s*Transcript\b'
+    regexNoticeOfFederalTaxLien = r'\bNotice\s*of\s*Federal\s*Tax\s*Lien\b'
     USApassportRegex = r'\bPASSPORT\b'
     collegeIDRegex = r'\bStudent\b'
 
