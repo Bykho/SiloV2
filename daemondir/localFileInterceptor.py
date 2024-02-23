@@ -9,16 +9,17 @@ from datetime import datetime
 import signal
 import sys
 
-# Define the global variable for the data.json file path
+# Define the global variables
 DATA_FILE = os.path.join(os.path.expanduser("~/Desktop/SiloV2"), "data.json")
 FILTER_PREFERENCES = os.path.join(os.path.dirname(__file__), "filter_preferences.json")
+LOCK_FILE = "/tmp/silov2_daemon.lock"
 
 class FileHandler(FileSystemEventHandler):
     def __init__(self, src_dir, dest_dir, data_file):
         self.src_dir = src_dir
         self.dest_dir = dest_dir
 
-        # Initialize data file with an empty list if it doesn't exist or empty
+        # Initialize data file with an empty list if it doesn't exist or is empty
         if not os.path.exists(DATA_FILE) or os.path.getsize(DATA_FILE) == 0:
             with open(DATA_FILE, 'w') as f:
                 json.dump({}, f)
@@ -36,7 +37,7 @@ class FileHandler(FileSystemEventHandler):
         file_name = os.path.basename(src_path)
         dest_path = os.path.join(self.dest_dir, file_name)
 
-        #Pull out prefered classes to filter from filter_preferences
+        # Pull out preferred classes to filter from filter_preferences
         with open(FILTER_PREFERENCES, 'r') as f:
             CLASSES_TO_FILTER = json.load(f)["Classes"]
             print('Classes to filter, ', CLASSES_TO_FILTER)
@@ -45,9 +46,9 @@ class FileHandler(FileSystemEventHandler):
             # After moving the file, classify it
             classification_result = run_classification(src_path)
             if classification_result in CLASSES_TO_FILTER:
-                #Duplicate the file before moving it. This duplicated src_path and then lands it in dest_path
+                # Duplicate the file before moving it. This duplicates src_path and then lands it in dest_path
                 shutil.copy2(src_path, dest_path)
-                #shutil.move(src_path, dest_path)
+                # shutil.move(src_path, dest_path)
                 print(f"File was classified as {classification_result}, preferences are {CLASSES_TO_FILTER}")
                 print(f"Moved: {file_name} to {dest_path}")
 
@@ -71,7 +72,7 @@ class FileHandler(FileSystemEventHandler):
         except Exception as e:
             print("An error occurred while updating data file:", e)
 
-def daemonize():
+def start_daemon():
     try:
         pid = os.fork()
         if pid > 0:
@@ -99,19 +100,37 @@ def daemonize():
 
     main()
 
+def stop_and_delete_previous_daemon():
+    # Check if lock file exists, indicating a previous daemon
+    if os.path.exists(LOCK_FILE):
+        # Read the PID of the previous daemon from the lock file
+        with open(LOCK_FILE, "r") as f:
+            previous_daemon_pid = int(f.read().strip())
+
+        # Stop the previous daemon by sending a SIGTERM signal
+        os.kill(previous_daemon_pid, signal.SIGTERM)
+
+        # Delete the lock file
+        os.remove(LOCK_FILE)
+
 def handler(signum, frame):
-    observer.stop()
     sys.exit(0)
 
 def main():
     desktop_dir = os.path.expanduser("~/Desktop")
     copied_file_folder = os.path.join(desktop_dir, "SiloV2/SH")
-    data_file = os.path.join(desktop_dir, "SiloV2", "data.json")
+
+    # Stop and delete the previous daemon
+    stop_and_delete_previous_daemon()
+
+    # Create lock file to indicate the current daemon
+    with open(LOCK_FILE, "w") as f:
+        f.write(str(os.getpid()))
 
     if not os.path.exists(copied_file_folder):
         os.mkdir(copied_file_folder)
 
-    event_handler = FileHandler(desktop_dir, copied_file_folder, data_file)
+    event_handler = FileHandler(desktop_dir, copied_file_folder, DATA_FILE)
     observer = Observer()
     observer.schedule(event_handler, path=desktop_dir, recursive=False)
     observer.start()
@@ -126,6 +145,7 @@ def main():
     observer.join()
 
 if __name__ == "__main__":
-    main()
-    #daemonize()
-
+    if len(sys.argv) > 1 and sys.argv[1] == "--daemonize":
+        start_daemon()
+    else:
+        main()
