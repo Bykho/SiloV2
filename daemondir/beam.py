@@ -8,8 +8,8 @@ MONGODB_CONNECTION_STRING = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD
 
 # Connect to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
-db = client.get_database("<database>")
-collection = db.get_collection("<collection>")
+db = client.get_database("Database1")
+collection = db.get_collection("Collection1")
 
 def beam_to_cloud(folder_path):
     # Iterate over files in the folder

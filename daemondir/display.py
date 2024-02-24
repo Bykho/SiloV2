@@ -1,9 +1,8 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QFrame
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel, QFrame, QPushButton
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt, QTimer, QSize  # Remove the import for QSizePolicy
-
+from PyQt5.QtCore import Qt, QTimer
 
 class FileViewer(QMainWindow):
     def __init__(self, directory_path):
@@ -29,34 +28,44 @@ class FileViewer(QMainWindow):
         self.scroll_widget.setLayout(self.scroll_layout)
         self.scroll_area.setLayout(self.scroll_layout)
         self.layout.addWidget(self.scroll_area)
+        
+        # Add buttons
+        self.button_start_daemon = QPushButton("Start Daemon")
+        self.button_start_daemon.clicked.connect(self.start_daemon)  # Connect to start_daemon method
+        self.layout.addWidget(self.button_start_daemon)
+        
+        self.button_run_crawler = QPushButton("Run Crawler")
+        self.button_run_crawler.clicked.connect(self.run_crawler)
+        self.layout.addWidget(self.button_run_crawler)
+        
+        self.button_kill_daemon = QPushButton("Kill Daemon")
+        self.button_kill_daemon.clicked.connect(self.kill_daemon)
+        self.layout.addWidget(self.button_kill_daemon)
+        
+        self.button_beam_files = QPushButton("Beam Files")
+        self.button_beam_files.clicked.connect(self.beam_files)
+        self.layout.addWidget(self.button_beam_files)
+
         self.central_widget.setLayout(self.layout)
 
         self.timer_load = QTimer(self)
         self.timer_load.timeout.connect(self.load_files)
-        self.timer_load.start(1000)  # Initial load every second
+        self.timer_load.start(1000)  
 
         self.timer_update = QTimer(self)
         self.timer_update.timeout.connect(self.update_files)
-        self.timer_update.start(1000)  # Update every second
+        self.timer_update.start(1000)  
 
     def load_files(self):
         self.files = []
-        #print("Checking for files in directory:", self.directory_path)
         for filename in os.listdir(self.directory_path):
             if filename.endswith(('.png', '.jpg', '.jpeg')):
                 self.files.append(filename)
 
-        #print("Found files:", self.files)
-
-        # Clear existing widgets
         for i in reversed(range(self.scroll_layout.count())):
             widget = self.scroll_layout.itemAt(i).widget()
             if widget is not None:
                 widget.setParent(None)
-
-        # Define the desired size for each image
-        image_width = 300
-        image_height = 200
 
         for filename in self.files:
             label = QLabel()
@@ -65,8 +74,6 @@ class FileViewer(QMainWindow):
             
             label.setPixmap(pixmap)
             label.setAlignment(Qt.AlignCenter)
-            
-            # Add a thin orange border around the image
             label.setStyleSheet("border: 1px solid orange; padding: 4px;")
 
             self.scroll_layout.addWidget(label)
@@ -83,7 +90,6 @@ class FileViewer(QMainWindow):
         removed_files = current_files - new_files
 
         if added_files:
-            print("New files found:", added_files)
             for filename in added_files:
                 label = QLabel()
                 pixmap = QPixmap(os.path.join(self.directory_path, filename))
@@ -91,8 +97,6 @@ class FileViewer(QMainWindow):
                 
                 label.setPixmap(pixmap)
                 label.setAlignment(Qt.AlignCenter)
-                
-                # Add a thin orange border around the image
                 label.setStyleSheet("border: 1px solid orange; padding: 4px;")
 
                 self.scroll_layout.addWidget(label)
@@ -100,14 +104,24 @@ class FileViewer(QMainWindow):
             self.files.extend(added_files)
 
         if removed_files:
-            print("Removed files found:", removed_files)
             for filename in removed_files:
-                # Find the widget associated with the removed file and remove it from the layout
                 for i in range(self.scroll_layout.count()):
                     widget = self.scroll_layout.itemAt(i).widget()
                     if widget is not None and widget.toolTip() == filename:
                         widget.setParent(None)
                         self.files.remove(filename)
+
+    def start_daemon(self):
+        os.system("python3 localFileInterceptor.py")  # Start the daemon
+
+    def run_crawler(self):
+        os.system("python3 localCrawlerParralel.py")
+
+    def kill_daemon(self):
+        os.system("python3 kill_daemon.py")
+
+    def beam_files(self):
+        os.system("python3 beam.py")
 
 def main(directory_path):
     app = QApplication(sys.argv)
@@ -116,9 +130,10 @@ def main(directory_path):
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    directory_path = os.path.join(os.path.expanduser("~"), "Desktop", "SiloV2", "SH")  # Adjusted for desktop path
-    image_width = 200  # Move image_width and image_height outside the class definition
+    directory_path = os.path.join(os.path.expanduser("~"), "Desktop", "SiloV2", "SH")  
+    image_width = 200  
     image_height = 150
     main(directory_path)
+
 
 

@@ -8,6 +8,7 @@ from classifier import run_classification
 from datetime import datetime
 import signal
 import sys
+import psutil
 
 # Define the global variables
 DATA_FILE = os.path.join(os.path.expanduser("~/Desktop/SiloV2"), "data.json")
@@ -107,14 +108,19 @@ def stop_and_delete_previous_daemon():
         with open(LOCK_FILE, "r") as f:
             previous_daemon_pid = int(f.read().strip())
 
-        # Stop the previous daemon by sending a SIGTERM signal
-        os.kill(previous_daemon_pid, signal.SIGTERM)
-
-        # Delete the lock file
+        # Check if the previous daemon process is still active
+        if is_process_active(previous_daemon_pid):
+            # Stop the previous daemon by sending a SIGTERM signal
+            os.kill(previous_daemon_pid, signal.SIGTERM)
+        
+        # Delete the lock file regardless of whether the process is active or not
         os.remove(LOCK_FILE)
 
 def handler(signum, frame):
     sys.exit(0)
+
+def is_process_active(pid):
+    return psutil.pid_exists(pid)
 
 def main():
     desktop_dir = os.path.expanduser("~/Desktop")
@@ -149,3 +155,7 @@ if __name__ == "__main__":
         start_daemon()
     else:
         main()
+
+
+
+
