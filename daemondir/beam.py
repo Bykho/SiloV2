@@ -4,7 +4,7 @@ from datetime import datetime
 from config import MONGODB_USERNAME, MONGODB_PASSWORD
 
 # MongoDB Atlas connection string
-MONGODB_CONNECTION_STRING = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@<cluster-address>/<database>?retryWrites=true&w=majority"
+MONGODB_CONNECTION_STRING = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@silov2-1stcluster.m6deilx.mongodb.net/?retryWrites=true&w=majority&appName=SiloV2-1stCluster"
 
 # Connect to MongoDB Atlas
 client = MongoClient(MONGODB_CONNECTION_STRING)
